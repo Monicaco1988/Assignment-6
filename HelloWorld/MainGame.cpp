@@ -4,9 +4,9 @@
 
 using namespace std;
 
-unsigned int nodeIndexCounter = 0; // i think ill make a vector to push and pop if the number is in there or not.
+unsigned int nodeIndexCounter = 0; // keeps track of the overall additions of the nodes
 
-vector <int> existingNodes; // implement this and we are golden........
+vector <int> existingNodes; // keeps track of how many nodes and which nodes are in the linked list
 
 class Node
 {
@@ -79,6 +79,7 @@ public:
 				tail = data;
 				//temp = data;
 				nodeIndexCounter++;
+				existingNodes.push_back(pos);
 				return true;
 			}
 			else
@@ -92,6 +93,7 @@ public:
 				tail = data;
 				//temp = data;
 				nodeIndexCounter++;
+				existingNodes.push_back(pos);
 				return true;
 			}
 		}
@@ -125,10 +127,14 @@ public:
 	{
 		Node* temp = head;
 
-		if (temp == nullptr || pos > nodeIndexCounter) //evaluates if temp node exists of is valid change place to first--------------------------------
+		if (temp == nullptr || find(existingNodes.begin(), existingNodes.end(),pos) == existingNodes.end()) //evaluates if temp node exists
 		{
 			return false;
 		}
+
+		auto nodeToDelete = find(existingNodes.begin(), existingNodes.end(), pos); // removes the element from the vector
+		if (nodeToDelete != existingNodes.end())
+			existingNodes.erase(nodeToDelete);
 
 		while (pos > 0) // finds the node for the given position 
 		{
@@ -136,7 +142,7 @@ public:
 			pos--;
 		}
 
-		if (temp->getNext() == nullptr) //evaluates if temp node is last in the list TAIL!!!!
+		if (temp->getNext() == nullptr) //evaluates if temp node is last in the lists tail
 		{
 
 			tail = temp->getPrev();
@@ -144,18 +150,20 @@ public:
 			tail->setNext(nullptr);
 
 			delete temp;
-			
+
+
+
 			return true;
 		}
 
-		else if (temp ->getPrev() == nullptr) //evaluates if temp node is first in the list head! Working
+		else if (temp ->getPrev() == nullptr) //evaluates if temp node is first in the list head
 		{
 			head = temp->getNext();
 			
 			head->setPrev(nullptr);
 
 			delete temp;
-			
+
 			return true;
 		}
 		
@@ -170,13 +178,14 @@ public:
 			previ->setNext(next);
 
 			delete temp; // deallocating memory that temp is using
-			
+
 			return true;
 		}
 	}
 
-	bool Replace(Node * oldNode, Node *newNode) // works but no exeption handling and not really deallocating anything
+	bool Replace(Node * oldNode, Node *newNode) // works
 	{
+
 		Node* temp = oldNode;
 
 		temp->setData(newNode->getData());
@@ -199,20 +208,20 @@ public:
 		}
 	}
 
-	Node* NodeAt(int pos) // I think it works, tho the errorhandling might not be working its fixed with a vector istead of nodeOIndexCounter
+	Node* NodeAt(int pos) // works as intended, modifies pos though after the while loop keep in mind
 	{
 		Node* temp = head;
+
+		if (temp == nullptr || find(existingNodes.begin(), existingNodes.end(), pos) == existingNodes.end())
+		{
+			return nullptr;
+		};
 
 		while (pos > 0)
 		{
 			temp = temp->getNext();
 			pos--;
 		}
-
-		if (temp == nullptr || pos > nodeIndexCounter)
-		{
-			return nullptr;
-		};
 
 		return temp;
 	}
@@ -228,15 +237,15 @@ public:
 		}
 	}
 
-	int size() // working correctly Should be replaced with size of vector later tho...
+	int size() // working
 	{
-		return nodeIndexCounter;
+		return sizeof(existingNodes);
 	}
 };
 
 int main()
 {
-	Node* n0 = new Node(0); // i want these to change as well!
+	Node* n0 = new Node(0);
 	Node* n1 = new Node(1);
 	Node* n2 = new Node(2);
 	Node* n3 = new Node(3);
@@ -250,7 +259,7 @@ int main()
 	list.Add(n3, 3);
 	list.Add(n4, 4);
 
-	//list.Display_backward();
+	list.Display_backward();
 
 	//list.Display_forward();
 
@@ -260,7 +269,7 @@ int main()
 
 	//list.NodeAt(3);
 
-	//list.Remove(2);
+	list.Remove(3);
 
 	//list.Replace(n3, n4);
 
