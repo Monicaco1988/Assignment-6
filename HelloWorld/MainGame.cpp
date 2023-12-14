@@ -125,27 +125,38 @@ public:
 	{
 		Node* temp = head;
 
+		if (temp == nullptr || pos > nodeIndexCounter) //evaluates if temp node exists of is valid change place to first--------------------------------
+		{
+			return false;
+		}
+
 		while (pos > 0) // finds the node for the given position 
 		{
 			temp = temp->getNext();
 			pos--;
 		}
 
-		if (temp->getNext() == nullptr) //evaluates if temp node is last in the list
+		if (temp->getNext() == nullptr) //evaluates if temp node is last in the list TAIL!!!!
 		{
-			//write function here-----------------------------------------------------------------------------------------------------------------------------------------------
+
+			tail = temp->getPrev();
+
+			tail->setNext(nullptr);
+
+			delete temp;
+			
 			return true;
 		}
 
-		else if (temp ->getPrev() == nullptr) //evaluates if temp node is first in the list 
+		else if (temp ->getPrev() == nullptr) //evaluates if temp node is first in the list head! Working
 		{
-			//write function here-----------------------------------------------------------------------------------------------------------------------------------------------
-			return true;
-		}
+			head = temp->getNext();
+			
+			head->setPrev(nullptr);
 
-		else if (temp == nullptr || pos > nodeIndexCounter) //evaluates if temp node exists of is valid
-		{
-			return false;
+			delete temp;
+			
+			return true;
 		}
 		
 		else // evaluates if the temp node is in the middle of the list
@@ -164,14 +175,19 @@ public:
 		}
 	}
 
-
-	bool Replace(Node * oldNode, Node *newNode)
+	bool Replace(Node * oldNode, Node *newNode) // works but no exeption handling and not really deallocating anything
 	{
+		Node* temp = oldNode;
 
+		temp->setData(newNode->getData());
+		temp -> setNext(oldNode->getNext());
+		temp -> setPrev(oldNode->getPrev());
+
+		oldNode = temp;
+
+		return true;
 
 	}
-
-
 
 	void Display_forward() // working correctly
 	{
@@ -218,10 +234,6 @@ public:
 	}
 };
 
-
-
-
-
 int main()
 {
 	Node* n0 = new Node(0); // i want these to change as well!
@@ -229,7 +241,6 @@ int main()
 	Node* n2 = new Node(2);
 	Node* n3 = new Node(3);
 	Node* n4 = new Node(4);
-
 
 	DoublyLinkedList list;
 
@@ -241,12 +252,18 @@ int main()
 
 	//list.Display_backward();
 
-	list.Display_forward();
+	//list.Display_forward();
 
 	//cout << list.Search(n4);
 
 	//cout << list.size();
 
 	//list.NodeAt(3);
+
+	//list.Remove(2);
+
+	//list.Replace(n3, n4);
+
+	list.Display_forward();
 
 }
