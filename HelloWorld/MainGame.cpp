@@ -4,9 +4,9 @@
 
 using namespace std;
 
-int nodeIndexCounter = 0;
+unsigned int nodeIndexCounter = 0; // i think ill make a vector to push and pop if the number is in there or not.
 
-
+vector <int> existingNodes; // implement this and we are golden........
 
 class Node
 {
@@ -16,10 +16,10 @@ private:
 	Node* prev;
 
 public:
-	
-	//Getters and Setters!
 
 	Node(int pos) {};
+
+	//Getters and Setters!
 
 	int getData()
 	{
@@ -53,20 +53,18 @@ public:
 
 	~Node()
 	{
-		
 	}
 };
-
-
 
 class DoublyLinkedList
 {
 private:
 	Node* head = nullptr;
 	Node* tail = nullptr;
+	//Node* temp = nullptr;
 public:
 
-	bool Add(Node* data, int pos)
+	bool Add(Node* data, int pos) // working correctly
 	{
 		if (data != nullptr && pos <= nodeIndexCounter)
 		{
@@ -76,22 +74,23 @@ public:
 				//data = new Node(pos);
 				data->setData(pos);
 				data->setNext(head);//had to change head so that it is first in line
-				data->setPrev(data);
+				data->setPrev(nullptr);
 				head = data;
 				tail = data;
+				//temp = data;
 				nodeIndexCounter++;
 				return true;
 			}
 			else
 			{
-				//Node* data;
-				//data = new Node(pos);
 				//newNode -> setPrev(nullptr); works the same way with or without
 				//newNode -> setNext(nullptr);
 				data->setData(pos);
-				data->setNext(head);//had to change head so that it is first in line
-				data->setPrev(data);
-				head = data;
+				//data->setNext(head);//had to change head so that it is first in line
+				data->setPrev(tail);
+				tail->setNext(data);
+				tail = data;
+				//temp = data;
 				nodeIndexCounter++;
 				return true;
 			}
@@ -102,46 +101,16 @@ public:
 		}
 	}
 
-	//bool Remove(int pos) // wont work untill search workds
-	//{
-	// 
-	//	Node* temp = this->search(pos);
-
-	//		if (temp == NULL)
-	//		{
-	//			return false;
-	//		};
-	// 
-	//	Node* previ = temp->getPrev();
-
-	//	Node *next = temp -> getNext();
-	//	
-	//	next->setPrev(previ);
-	//	
-	//	previ -> setNext(next);
-	// 
-	//	delete temp; // deallocating memory that temp is using
-	//	
-	//	
-	// return true;
-	//}
-
-	bool Replace(Node * oldNode, Node *newNode)
-	{
-
-
-	}
-
-	int Search(Node* data) // not working either
+	int Search(Node* data) // working just fine now... altering the nodes starting from the "head"
 	{
 		Node* temp = head;
 		int position = temp->getData();
 
-		
+
 		while (temp != data && temp->getNext() != nullptr)
 		{
 			temp = temp->getNext();
-			position--;
+			position++;
 		}
 
 		if (temp != data)
@@ -152,6 +121,58 @@ public:
 		return (position);
 	}
 
+	bool Remove(int pos) // works with nodes in the middle not in the end or start
+	{
+		Node* temp = head;
+
+		while (pos > 0) // finds the node for the given position 
+		{
+			temp = temp->getNext();
+			pos--;
+		}
+
+		if (temp->getNext() == nullptr) //evaluates if temp node is last in the list
+		{
+			//write function here-----------------------------------------------------------------------------------------------------------------------------------------------
+			return true;
+		}
+
+		else if (temp ->getPrev() == nullptr) //evaluates if temp node is first in the list 
+		{
+			//write function here-----------------------------------------------------------------------------------------------------------------------------------------------
+			return true;
+		}
+
+		else if (temp == nullptr || pos > nodeIndexCounter) //evaluates if temp node exists of is valid
+		{
+			return false;
+		}
+		
+		else // evaluates if the temp node is in the middle of the list
+		{
+			Node* previ = temp->getPrev();
+
+			Node* next = temp->getNext();
+
+			next->setPrev(previ);
+
+			previ->setNext(next);
+
+			delete temp; // deallocating memory that temp is using
+			
+			return true;
+		}
+	}
+
+
+	bool Replace(Node * oldNode, Node *newNode)
+	{
+
+
+	}
+
+
+
 	void Display_forward() // working correctly
 	{
 		Node* newNode = head;
@@ -159,17 +180,28 @@ public:
 		{
 			cout << newNode->getData() << " ";
 			newNode = newNode->getNext();
-
 		}
 	}
 
-	Node* NodeAt(int pos)
+	Node* NodeAt(int pos) // I think it works, tho the errorhandling might not be working its fixed with a vector istead of nodeOIndexCounter
 	{
+		Node* temp = head;
 
+		while (pos > 0)
+		{
+			temp = temp->getNext();
+			pos--;
+		}
 
+		if (temp == nullptr || pos > nodeIndexCounter)
+		{
+			return nullptr;
+		};
+
+		return temp;
 	}
 
-	void Display_backward() // not working correctly this is because the first add implementation is not working correctly
+	void Display_backward() // working correctly
 	{
 		Node* current = tail;
 		while (current != nullptr)
@@ -180,7 +212,7 @@ public:
 		}
 	}
 
-	int size()
+	int size() // working correctly Should be replaced with size of vector later tho...
 	{
 		return nodeIndexCounter;
 	}
@@ -207,9 +239,14 @@ int main()
 	list.Add(n3, 3);
 	list.Add(n4, 4);
 
+	//list.Display_backward();
+
 	list.Display_forward();
 
-	cout << list.Search(n2);
-	//list.display_backward(); not working right
+	//cout << list.Search(n4);
+
+	//cout << list.size();
+
+	//list.NodeAt(3);
 
 }
