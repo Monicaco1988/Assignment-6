@@ -4,22 +4,26 @@
 
 using namespace std;
 
-unsigned int nodeIndexCounter = 0; // keeps track of the overall additions of the nodes
-
 vector <int> existingNodes; // keeps track of how many nodes and which nodes are in the linked list
 
 class Node
 {
 private:
+	int pos; // use this variable to set a position for each each node. like a name for that position, I use it in AtNode() function
 	int data;
 	Node* next;
 	Node* prev;
 
 public:
 
-	Node(int pos) {};
+	Node(int position) { pos = position; };
 
 	//Getters and Setters!
+
+	int getPos()
+	{
+		return pos;
+	}
 
 	int getData()
 	{
@@ -66,7 +70,7 @@ public:
 
 	bool Add(Node* data, int pos) // working correctly
 	{
-		if (data != nullptr && pos <= nodeIndexCounter)
+		if (data != nullptr && pos <= existingNodes.size())
 		{
 			if (pos == 0)
 			{
@@ -77,8 +81,6 @@ public:
 				data->setPrev(nullptr);
 				head = data;
 				tail = data;
-				//temp = data;
-				nodeIndexCounter++;
 				existingNodes.push_back(pos);
 				return true;
 			}
@@ -91,14 +93,13 @@ public:
 				data->setPrev(tail);
 				tail->setNext(data);
 				tail = data;
-				//temp = data;
-				nodeIndexCounter++;
 				existingNodes.push_back(pos);
 				return true;
 			}
 		}
 		else
 		{
+			cout << "false" << endl;
 			return false;
 		}
 	}
@@ -117,10 +118,12 @@ public:
 
 		if (temp != data)
 		{
+			//cout << "-1" << endl;
 			return -1;
 		}
 
-		return (position);
+		//cout << position << endl;
+		return position;
 	}
 
 	bool Remove(int pos) // works with nodes in the middle not in the end or start
@@ -129,12 +132,13 @@ public:
 
 		if (temp == nullptr || find(existingNodes.begin(), existingNodes.end(),pos) == existingNodes.end()) //evaluates if temp node exists
 		{
+			cout << "false" << endl;
 			return false;
 		}
 
 		auto nodeToDelete = find(existingNodes.begin(), existingNodes.end(), pos); // removes the element from the vector
 		if (nodeToDelete != existingNodes.end())
-			existingNodes.erase(nodeToDelete);
+		existingNodes.erase(nodeToDelete);
 
 		while (pos > 0) // finds the node for the given position 
 		{
@@ -150,7 +154,6 @@ public:
 			tail->setNext(nullptr);
 
 			delete temp;
-
 
 
 			return true;
@@ -183,22 +186,41 @@ public:
 		}
 	}
 
-	bool Replace(Node * oldNode, Node *newNode) // works
+	bool Replace(Node* oldNode, Node* newNode) // Needs a little more work!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	{
 
-		Node* temp = oldNode;
+		if (oldNode != nullptr && newNode != nullptr && Search(oldNode) != -1) // checks if oldNode exists and that new/oldNode are not nullptr
+		{
 
-		temp->setData(newNode->getData());
-		temp -> setNext(oldNode->getNext());
-		temp -> setPrev(oldNode->getPrev());
+			newNode->setPrev(oldNode->getPrev());
 
-		oldNode = temp;
+			newNode->setNext(oldNode->getNext());
+
+			int pos = oldNode->getPos();
+
+			auto nodeToDelete = find(existingNodes.begin(), existingNodes.end(), pos); // removes the element from the vector
+			if (nodeToDelete != existingNodes.end())
+				existingNodes.erase(nodeToDelete);
+
+			Node* previ = oldNode->getPrev();
+
+			previ->setNext(newNode);
+
+
+		//Remove(oldNode->getPos());
+
+		delete oldNode;
 
 		return true;
-
+		}
+		else
+		{
+			cout << "false" << endl;
+			return false;
+		}
 	}
 
-	void Display_forward() // working correctly
+	void Display_forward() // working correctly, displays all the nodes values from head to tail
 	{
 		Node* newNode = head;
 		while (newNode != nullptr)
@@ -206,40 +228,47 @@ public:
 			cout << newNode->getData() << " ";
 			newNode = newNode->getNext();
 		}
+		cout << endl;
 	}
 
-	Node* NodeAt(int pos) // works as intended, modifies pos though after the while loop keep in mind
+	Node* NodeAt(int pos) // not working as intended
 	{
-		Node* temp = head;
-
-		if (temp == nullptr || find(existingNodes.begin(), existingNodes.end(), pos) == existingNodes.end())
+		if (find(existingNodes.begin(), existingNodes.end(), pos) <= existingNodes.end())
 		{
-			return nullptr;
-		};
+			Node* temp = head;
+			int position = 0;
 
-		while (pos > 0)
-		{
-			temp = temp->getNext();
-			pos--;
+			while (temp != nullptr)
+			{
+				if (position == pos)
+				{
+					cout << temp->getPos();
+					return temp;
+				}
+				temp = temp->getNext();
+				position++;
+			}
 		}
-
-		return temp;
+		cout << "nullptr" << endl;
+		return nullptr;
 	}
 
-	void Display_backward() // working correctly
+	void Display_backward() // working correctly, displays all the nodes values from tail to head
 	{
 		Node* current = tail;
 		while (current != nullptr)
 		{
 			cout << current->getData() << " ";
 			current = current->getPrev();
-
 		}
+		cout << endl;
 	}
 
+	
 	int size() // working
 	{
-		return sizeof(existingNodes);
+		cout << existingNodes.size() << endl;
+		return existingNodes.size();
 	}
 };
 
@@ -254,25 +283,48 @@ int main()
 	DoublyLinkedList list;
 
 	list.Add(n0, 0);
+
+	list.Add(n1, 10);
+
+	list.Add(nullptr, 1);
+
 	list.Add(n1, 1);
-	list.Add(n2, 2);
-	list.Add(n3, 3);
-	list.Add(n4, 4);
-
-	list.Display_backward();
-
-	//list.Display_forward();
-
-	//cout << list.Search(n4);
-
-	//cout << list.size();
-
-	//list.NodeAt(3);
 
 	list.Remove(3);
 
-	//list.Replace(n3, n4);
+	list.Add(n2, 2);
 
 	list.Display_forward();
+
+	list.Add(n3, 1);
+
+	list.Display_forward();
+
+	list.Remove(2);
+
+	list.Display_forward();
+
+	list.Display_backward();
+
+	cout << list.Search(n4) << endl;
+
+	cout << list.Search(n3) << endl;
+
+	list.Replace(n3, nullptr);
+	
+	list.Replace(n2, n4); // n5 could not be used as n5 node has never been initialized, n2 is chosen because it has been removed and
+	// thus no longer exists
+
+	list.Replace(n3, n4);
+
+	list.Display_forward();
+	
+	list.size();
+
+	list.NodeAt(5); // invalid position gives result nullptr
+
+	list.NodeAt(2); // gives the Node-position of the index-position of the node.
+	
+
 
 }
