@@ -11,6 +11,8 @@ int main()
 	Node* n2 = new Node(2);
 	Node* n3 = new Node(3);
 	Node* n4 = new Node(4);
+	Node* n5 = new Node(5);
+
 
 	DoublyLinkedList list;
 
@@ -38,23 +40,24 @@ int main()
 
 	list.Display_backward();
 
-	cout << list.Search(n4) << endl;
+	cout << list.Search(n1) << endl;
 
-	cout << list.Search(n3) << endl;
+	cout << list.Search(n2) << endl;
 
 	list.Replace(n3, nullptr);
 	
-	list.Replace(n2, n4); // n5 could not be used as n5 node has never been initialized, n2 is chosen because it has been removed and
-	// thus no longer exists
+	list.Replace(n2, n4);
 
-	list.Replace(n3, n4);
+	list.Replace(n1, n4);
 
 	list.Display_forward();
+
+	list.Display_backward();
 	
 	list.size();
 
-	list.NodeAt(5); // invalid position gives result nullptr
+	list.NodeAt(5); // invalid position gives result nullptr working
 
-	list.NodeAt(2); // gives the Node-position of the index-position of the node.
+	list.NodeAt(2); // gives the Node-position of the index-position of the node. not working
 	
 }

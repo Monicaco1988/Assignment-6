@@ -10,18 +10,15 @@ vector <int> existingNodes;
 class Node
 {
 private:
-	int pos; // use this variable to set a position for each each node. like a name for that position, I use it in AtNode() function
-	int data;
 	Node* next;
 	Node* prev;
 
 public:
+	int data;
 
-	Node(int position) { pos = position; };
+	Node(int datas) { data = datas; };
 
 	//Getters and Setters!
-
-	int getPos();
 
 	int getData();
 

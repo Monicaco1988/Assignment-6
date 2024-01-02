@@ -1,10 +1,5 @@
 #include "Node.h"
 
-int Node::getPos()
-{
-	return pos;
-};
-
 int Node::getData()
 {
 	return data;
@@ -38,43 +33,68 @@ void Node::setPrev(Node* selectPrev)
 
 bool DoublyLinkedList::Add(Node* data, int pos) // working fine adds a new Node to the list
 {
-	if (data != nullptr && pos <= existingNodes.size())
-	{
-		if (pos == 0)
-		{
-			data->setData(pos);
-			data->setNext(head);//had to change head so that it is first in line
-			data->setPrev(nullptr);
-			head = data;
-			tail = data;
-			existingNodes.push_back(pos);
-			return true;
-		}
-		else
-		{
-			data->setData(pos);
-			data->setPrev(tail);
-			tail->setNext(data);
-			tail = data;
-			existingNodes.push_back(pos);
-			return true;
-		}
-	}
-	else
+
+	if (data == nullptr || pos < 0 || pos > existingNodes.size()) // checks if data exists or if data is in the existing nodes
 	{
 		cout << "false" << endl;
 		return false;
 	}
+
+	Node* newNode = new Node(pos);
+	newNode->setData(data->getData());
+	newNode->setPrev(nullptr); //good practice to set uninitialized pointers to nullptr.
+	newNode->setNext(nullptr);
+
+	if (pos == 0) // if position is 0 then this is the first index which means it will be placed at the beginning of the node-list
+	{
+		if (head == nullptr) // updates head and tail - Empty list
+		{
+			head = newNode;
+			tail = newNode;
+		}
+		else // it the list is not empty the head will be updated
+		{
+			newNode->setNext(head);
+			head->setPrev(newNode);
+			head = newNode;
+		}
+	}
+	else if (pos == existingNodes.size()) // if the new node is inserted at the end of the list
+	{
+		tail->setNext(newNode);
+		newNode->setPrev(tail);
+		tail = newNode;
+	}
+	else // inserts at the position that pos is referring to that is in the middle of the list somewhere
+	{
+		Node* current = head;
+		for (int i = 0; i < pos; i++)
+		{
+			current = current->getNext();
+		}
+		newNode->setPrev(current->getPrev());
+		newNode->setNext(current);
+		current->getPrev()->setNext(newNode);
+		current->setPrev(newNode);
+		}
+
+
+	existingNodes.push_back(data->getData()); // adds the Data of the node to the vector, the Data doesn't matter to much
+	return true;
+
 };
 
 int DoublyLinkedList::Search(Node* data) // working just fine now... altering the nodes starting from the "head"
 {
 	Node* temp = head;
-	int position = temp->getData();
+	int position = 0;
 
-
-	while (temp != data && temp->getNext() != nullptr)
+	while (temp != nullptr)
 	{
+		if (temp->getData() == data->getData())
+		{
+			return position; // returns the position of the node in the index
+		}
 		temp = temp->getNext();
 		position++;
 	}
@@ -85,8 +105,6 @@ int DoublyLinkedList::Search(Node* data) // working just fine now... altering th
 		return -1;
 	}
 
-	//cout << position << endl;
-	return position;
 };
 
 bool DoublyLinkedList::Remove(int pos) // Removes the node at a given position
@@ -149,35 +167,51 @@ bool DoublyLinkedList::Remove(int pos) // Removes the node at a given position
 	}
 };
 
-bool DoublyLinkedList::Replace(Node* oldNode, Node* newNode) // replaces the "oldNode" with "newNode" and removes the old one from memory
+bool DoublyLinkedList::Replace(Node* oldNode, Node* newNode) // replaces the "oldNode" with "newNode" and removes the old one from memory - fixed
 {
 
-	if (oldNode != nullptr && newNode != nullptr && Search(oldNode) != -1) // checks if oldNode exists and that new/oldNode are not nullptr
-	{
-
-		newNode->setPrev(oldNode->getPrev());
-
-		newNode->setNext(oldNode->getNext());
-
-		int pos = oldNode->getPos();
-
-		auto nodeToDelete = find(existingNodes.begin(), existingNodes.end(), pos); // removes the element from the vector
-		if (nodeToDelete != existingNodes.end())
-			existingNodes.erase(nodeToDelete);
-
-		Node* previ = oldNode->getPrev();
-
-		previ->setNext(newNode);
-
-		delete oldNode;
-
-		return true;
-	}
-	else
+	if (oldNode == nullptr || newNode == nullptr || Search(oldNode) == -1) // checks if oldNode exists and that new/oldNode are not nullptr
 	{
 		cout << "false" << endl;
 		return false;
 	}
+		
+
+	Node* current = head;
+	while (current != nullptr) // sets the node "current" = oldnode, loops throug the list from head -> tail
+	{
+		if (current->getData() == oldNode->getData()) // sets the node "current" = oldnode
+		{
+			if (current->getPrev() != nullptr) // checks if current (oldnode) is head
+			{
+				current->getPrev()->setNext(newNode); // changes the node that comes previous to "oldnode". the previous nodes next is the newnode.
+			}
+			else
+			{
+				head = newNode;
+			}
+
+			if (current->getNext() != nullptr)// checks if current (oldnode) is tail
+			{
+				current->getNext()->setPrev(newNode); // changes the node that comes next to "oldnode". the next nodes previous is the newnode.
+			}
+			else
+			{
+				tail = newNode;
+			}
+
+			newNode->setPrev(current->getPrev());
+
+			newNode->setNext(current->getNext());
+
+			delete oldNode;
+
+
+			return true;
+		}
+		current = current->getNext();
+	}
+	
 };
 
 void DoublyLinkedList::Display_forward() // working correctly, displays all the nodes values from head to tail
@@ -193,22 +227,19 @@ void DoublyLinkedList::Display_forward() // working correctly, displays all the 
 
 Node* DoublyLinkedList::NodeAt(int pos) // working as intended, shpws the node-position at given index
 {
-	if (find(existingNodes.begin(), existingNodes.end(), pos) <= existingNodes.end())
-	{
-		Node* temp = head;
-		int position = 0;
 
-		while (temp != nullptr)
+	Node* temp = head;
+
+	while (temp != nullptr)
+	{
+		if (Search(temp) == pos)
 		{
-			if (position == pos)
-			{
-				cout << temp->getPos() << endl;
-				return temp;
-			}
-			temp = temp->getNext();
-			position++;
+			cout << temp->getData() << endl;
+			return temp;
 		}
+		temp = temp->getNext();
 	}
+
 	cout << "nullptr" << endl;
 	return nullptr;
 };
